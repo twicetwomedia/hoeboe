@@ -12,17 +12,6 @@ class Hoeboe_OptionsManager {
     /**
      * Define your options meta data here as an array, where each element in the array
      * @return array of key=>display-name and/or key=>array(display-name, choice1, choice2, ...)
-     * key: an option name for the key
-     * value: can be one of two things:
-     *   (1) string display name for displaying the name of the option to the user on a web page
-     *   (2) array where the first element is a display name (as above) and the rest of
-     *       the elements are choices of values that the user can select
-     * e.g.
-     * array(
-     *   'item' => 'Item:',             // key => display-name
-     *   'rating' => array(             // key => array ( display-name, choice1, choice2, ...)
-     *       'CanDoOperationX' => array('Can do Operation X', 'Administrator', 'Editor', 'Author', 'Contributor', 'Subscriber'),
-     *       'Rating:', 'Excellent', 'Good', 'Fair', 'Poor')
      */
     public function getOptionMetaData() {
         return array();
@@ -63,7 +52,6 @@ class Hoeboe_OptionsManager {
 
     /**
      * @return string display name of the plugin to show as a name/title in HTML.
-     * Just returns the class name. Override this method to return something more readable
      */
     public function getPluginDisplayName() {
         return get_class($this);
@@ -138,9 +126,6 @@ class Hoeboe_OptionsManager {
     /**
      * A Role Option is an option defined in getOptionMetaData() as a choice of WP standard roles, e.g.
      * 'CanDoOperationX' => array('Can do Operation X', 'Administrator', 'Editor', 'Author', 'Contributor', 'Subscriber')
-     * The idea is use an option to indicate what role level a user must minimally have in order to do some operation.
-     * So if a Role Option 'CanDoOperationX' is set to 'Editor' then users which role 'Editor' or above should be
-     * able to do Operation X.
      * Also see: canUserDoRoleOption()
      * @param  $optionName
      * @return string role name
@@ -273,6 +258,9 @@ class Hoeboe_OptionsManager {
                     }
                 }
                 ?>
+                <tr valign="top">
+                    <td colspan="2"><p>Note: Turning Hoeboe to "off" will allow your site to handle transients in a standard (non-AJAX) way while still using Hoeboe syntax.</p></td>
+                </tr>
                 </tbody></table>
                 <p class="submit">
                     <input type="submit" class="button-primary"
@@ -319,16 +307,6 @@ class Hoeboe_OptionsManager {
     }
 
     /**
-     * Override this method and follow its format.
-     * The purpose of this method is to provide i18n display strings for the values of options.
-     * For example, you may create a options with values 'true' or 'false'.
-     * In the options page, this will show as a drop down list with these choices.
-     * But when the the language is not English, you would like to display different strings
-     * for 'true' and 'false' while still keeping the value of that option that is actually saved in
-     * the DB as 'true' or 'false'.
-     * To do this, follow the convention of defining option values in getOptionMetaData() as canonical names
-     * (what you want them to literally be, like 'true') and then add each one to the switch statement in this
-     * function, returning the "__()" i18n name of that string.
      * @param  $optionValue string
      * @return string __($optionValue) if it is listed in this method, otherwise just returns $optionValue
      */

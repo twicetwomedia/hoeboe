@@ -1,6 +1,6 @@
 <?php
 /**
- * //hoe//boe//magic
+ * //hoe//boe//advanced
  */
 
 class Hoeboe {
@@ -10,24 +10,22 @@ class Hoeboe {
     public function hoeboe__value($transient=null) {
         $value = null;
         if ($transient) : 
-            $value = get_option('_transient_' . $transient);
+            $value = get_option('_transient_' . $transient) ?: get_option('_transient_' . $transient . '_bak');
         endif;
         return $value;
     }
 
-    private function hoeboe__get($expiration=60) {
+    private function hoeboe__get() {
         $toggle = false;
-        if ( $_GET["hoeboe"] ) :
+        if ( isset( $_GET["hoeboe"] ) ) :
             $hoeboe = $_GET["hoeboe"];
             if ( 'refresh' == $hoeboe ) : 
-                if ( $_GET["hbchck"] ) {
+                if ( isset( $_GET["hbchck"] ) ) {
                     $hbchck = $_GET["hbchck"];
                     $hb_transient_name = 'hb_' . $hbchck;
                     $hb_transient_val = get_transient($hb_transient_name);
                     $hb_key = get_option('Hoe_Boe')['_key'];
                     if ( ($hb_transient_val) && ($hb_key) && ($hb_transient_val == $hb_key) ) { 
-                        $new_val = substr(str_shuffle(MD5(microtime())), 0, 18);
-                        set_transient( $hb_transient_name, $new_val, $expiration );
                         $toggle = true;
                     }
                 }
@@ -36,12 +34,12 @@ class Hoeboe {
         return $toggle;
     }
 
-    private function hoeboe__check_expiry($transient=null) {
+    private function hoeboe__check_expiry($transient=null, $data=null, $temp_expire=30) {
         $expired = true;
         if ($transient) : 
             $expired = false;
             if ( false === get_transient($transient) ) : 
-                $expired = true;
+               $expired = true;
             endif;
         endif;
         return $expired;
@@ -50,14 +48,15 @@ class Hoeboe {
     public function hoeboe__updatetransient($transient=null, $function=null, $parameters=array(), $expiration=60) {
         if ($transient) : 
             $value = $this->hoeboe__value($transient);
-            $is_expired = $this->hoeboe__check_expiry($transient);
+            $is_expired = $this->hoeboe__check_expiry($transient, $value);
             if ($is_expired) : 
-                $refresh_now = $this->hoeboe__get($expiration);
+                $refresh_now = $this->hoeboe__get();
                 if ($refresh_now) : 
                     if ($function) : 
                         if ( function_exists($function) ) :
                             $data = call_user_func_array($function, $parameters);
                             set_transient( $transient, $data, $expiration );
+                            set_transient( $transient . '_bak', $data, $expiration );
                         else :
                             $result = 'function does not exist';
                         endif;
@@ -83,11 +82,12 @@ class Hoeboe {
 
             if ( ! $toggle ) {
 
-                $hoeboe_ref_private = get_option('Hoe_Boe')['_key'] ?: '';
                 $hoeboe_ref_public  = wp_create_nonce('hoeboe-ref-public');
                 $hb_temp_transient  = 'hb_' . $hoeboe_ref_public;
+                $hb_ref_private = get_option('Hoe_Boe')['_key'] ?: '';
+                $hb_temp_expiration = 60;
                 if ( false === get_transient($hb_temp_transient) ) {
-                    set_transient( $hb_temp_transient , $hoeboe_ref_private, $expiration );
+                    set_transient( $hb_temp_transient , $hb_ref_private, $hb_temp_expiration );
                 }
                 $url__to__get = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]" . "?hoeboe=refresh&hbchck=" . $hoeboe_ref_public;
                 $needs__refresh = true;
@@ -103,11 +103,12 @@ class Hoeboe {
 
     }
 
-    public function hoeboe__ajax($refresh=false, $url=null) {
+    public function hoeboe__ajax($refresh=false, $url=null, $random=null) {
+        $random = rand(111111, 999999);
         if ( ($refresh) && ($url) && (filter_var($url, FILTER_VALIDATE_URL)) ) :
 ?>
     <script>
-    jQuery(document).ready(function($) {
+    jQuery(document).ready(function($) { function a<?php echo $random; ?>() {
         console.log('updating ...');
         var hoeboe_nonce = '<?php echo wp_create_nonce( "hoeboe__ajax__nonce" ); ?>';
         var hoeboe_url = '<?php echo $url; ?>';
@@ -120,6 +121,8 @@ class Hoeboe {
         jQuery.get(ajaxurl, data, function(response){ 
             console.log(response);
         });
+    }
+    a<?php echo $random; ?>();
     });
     </script>
 <?php

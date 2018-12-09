@@ -12,7 +12,6 @@ class Hoe_Boe extends Hoeboe_LifeCycle {
      */
     public function getOptionMetaData() {
         return array(
-            //'_version' => array('Installed Version'), // Uncomment to test upgrades.
             'toggle' => array(__('Turn HoeBoe On/Off', 'hoeboe'), 'on', 'off')
         );
     }
@@ -43,24 +42,28 @@ class Hoe_Boe extends Hoeboe_LifeCycle {
     public function upgrade() {
     }
 
-/*
-    public function activate() {
+    public function check_for_jquery() {
+        if ( ! wp_script_is( 'jquery' ) ) {
+            wp_enqueue_script( 'jquery-hb', plugins_url( 'assets/js/jquery.min.js', dirname(__FILE__) ) );
+        }
     }
-*/
-    
+
     public function addActionsAndFilters() {
 
         // ++ options administration page
         add_action( 'admin_menu', array(&$this, 'addSettingsSubMenuPage') );
 
+        //enqueue jquery if not already present
+        add_action( 'init', array(&$this, 'check_for_jquery') );
+
     } 
 
 }
 
-$hb_toggle = get_option('Hoe_Boe')['toggle'];
+$hb_toggle = get_option('Hoe_Boe')['toggle'] ?: 'on';
 if ( ($hb_toggle) && ($hb_toggle == 'on') ) {
     require_once( 'Hoeboe_Advanced.php' );
 } else {
-    include_once( 'Hoeboe_Basic.php' );  
+    require_once( 'Hoeboe_Basic.php' );  
 }
 

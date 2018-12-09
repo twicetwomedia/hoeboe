@@ -23,11 +23,13 @@ function Hoeboe_init($file) {
     if (!$file) {
         $file = __FILE__;
     }
+    
     // Register the Plugin Activation Hook
     register_activation_hook($file, array(&$hoeboe_plugin, 'activate'));
 
     // Register the Plugin Deactivation Hook
     register_deactivation_hook($file, array(&$hoeboe_plugin, 'deactivate'));
+
 }
 
 include_once( 'inc/Hoeboe_Extras.php' );
