@@ -32,18 +32,21 @@ class Hoeboe_LifeCycle extends Hoeboe_InstallIndicator {
      * @return void
      */
     public function upgrade() {
+        $this->saveInstalledVersion();
     }
 
     /**
      * @return void
      */
-    public function activate() {   
+    public function activate() {
+        $this->saveInstalledVersion();
     }
 
     /**
      * @return void
      */
     public function deactivate() {
+        $this->saveInstalledVersion();
     }
 
     /**

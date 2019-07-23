@@ -68,6 +68,13 @@ class Hoeboe_InstallIndicator extends Hoeboe_OptionsManager {
     }
 
     /**
+     * @return string
+     */
+    protected function getPluginDir() {
+        return dirname(__FILE__);
+    }
+    
+    /**
      * @return string if found, otherwise null
      */
     public function getPluginHeaderValue($key) {
@@ -79,13 +86,6 @@ class Hoeboe_InstallIndicator extends Hoeboe_OptionsManager {
             return $match[1];
         }
         return null;
-    }
-
-    /**
-     * @return string
-     */
-    protected function getPluginDir() {
-        return dirname(__FILE__);
     }
 
     /**

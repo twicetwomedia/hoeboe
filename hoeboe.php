@@ -3,7 +3,7 @@
    Plugin Name: Hoeboe
    Plugin URI: https://twicetwomedia.com/wordpress-plugins/
    Description: Easily update WordPress transients in the background via AJAX to increase site speed and avoid long page load times. Hoeboe can be especially helpful with caching of large external API calls or heavy internal database queries.
-   Version: 0.1.1
+   Version: 0.1.2
    Author: twicetwomedia
    Author URI: https://twicetwomedia.com
    Text Domain: hoeboe

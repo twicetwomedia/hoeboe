@@ -16,23 +16,20 @@ class Hoe_Boe extends Hoeboe_LifeCycle {
         );
     }
 
-    protected function initOptions() {
-        $options = $this->getOptionMetaData();
-        if (!empty($options)) {
-            foreach ($options as $key => $arr) {
-                if (is_array($arr) && count($arr > 1)) {
-                    $this->addOption($key, $arr[1]);
-                }
-            }
-        }
-    }
-
     public function getPluginDisplayName() {
         return 'Hoeboe';
     }
 
     protected function getMainPluginFileName() {
         return 'hoeboe.php';
+    }
+
+    protected function getPluginDir() {
+        $name = dirname(__FILE__);
+        if ( strpos($name, '/inc') !== false ) {
+          $name = str_replace('/inc', '', $name);
+        }
+        return $name;
     }
 
     /**
@@ -60,7 +57,7 @@ class Hoe_Boe extends Hoeboe_LifeCycle {
 
 }
 
-$hb_toggle = get_option('Hoe_Boe')['toggle'] ?: 'on';
+$hb_toggle = isset(get_option('Hoe_Boe')['toggle']) ? get_option('Hoe_Boe')['toggle'] : 'on';
 if ( ($hb_toggle) && ($hb_toggle == 'on') ) {
     require_once( 'Hoeboe_Advanced.php' );
 } else {
