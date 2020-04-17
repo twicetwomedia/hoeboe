@@ -1,91 +1,55 @@
 <?php
+if ( ! defined('ABSPATH') ) { exit; }
 /**
- * //hoe//boe//4ever
+ * //hoe//boe//lifecycle
  */
 
 include_once( 'Hoeboe_InstallIndicator.php' );
 
 class Hoeboe_LifeCycle extends Hoeboe_InstallIndicator {
 
-    public function install() {
+  public function install() {
+    $this->initOptions();
+    $this->saveInstalledVersion();
+    $this->markAsInstalled();
+    $this->setRandomKey();
+  }
 
-        // Initialize plugin options
-        $this->initOptions();
+  public function uninstall() {
+    $this->deleteSavedOptions();
+    $this->markAsUnInstalled();
+  }
 
-        // Record the installed version
-        $this->saveInstalledVersion();
+  public function upgrade() {
+    $this->saveInstalledVersion();
+  }
 
-        // Avoid running install() more then once
-        $this->markAsInstalled();
+  public function activate() {  
+    $this->saveInstalledVersion(); 
+  }
 
-        // Set a key on install
-        $this->setRandomKey();
-        
-    }
+  public function deactivate() {
+    $this->saveInstalledVersion(); 
+  }
 
-    public function uninstall() {
-        $this->deleteSavedOptions();
-        $this->markAsUnInstalled();
-    }
+  protected function initOptions() {
+  }
 
-    /**
-     * @return void
-     */
-    public function upgrade() {
-        $this->saveInstalledVersion();
-    }
+  public function addActionsAndFilters() {
+  }
 
-    /**
-     * @return void
-     */
-    public function activate() {
-        $this->saveInstalledVersion();
-    }
+  protected function requireExtraPluginFiles() {
+  }
 
-    /**
-     * @return void
-     */
-    public function deactivate() {
-        $this->saveInstalledVersion();
-    }
+  protected function getSettingsSlug() {
+    return get_class($this) . '_Settings';
+  }
 
-    /**
-     * @return void
-     */
-    protected function initOptions() {
-    }
+  public function addSettingsSubMenuPage() {
+    $this->addSettingsSubMenuPageNav();
+  }
 
-    public function addActionsAndFilters() {
-    }
-
-    /**
-     * @return void
-     */
-    public function addSettingsSubMenuPage() {
-        $this->addSettingsSubMenuPageNav();
-    }
-
-    protected function requireExtraPluginFiles() {
-        require_once(ABSPATH . 'wp-includes/pluggable.php');
-        require_once(ABSPATH . 'wp-admin/includes/plugin.php');
-    }
-
-    /**
-     * @return string Slug name for the URL to the Setting page
-     */
-    protected function getSettingsSlug() {
-        return get_class($this) . '_Settings';
-    }
-
-    protected function addSettingsSubMenuPageNav() {
-        $this->requireExtraPluginFiles();
-        $displayName = $this->getPluginDisplayName();
-        add_options_page($displayName,
-                         $displayName,
-                         'manage_options',
-                         $this->getSettingsSlug(),
-                         array(&$this, 'settingsPage'));
-    }
+  protected function addSettingsSubMenuPageNav() {
+  }
 
 }
-

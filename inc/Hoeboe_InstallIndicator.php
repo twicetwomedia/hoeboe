@@ -1,4 +1,5 @@
 <?php
+if ( ! defined('ABSPATH') ) { exit; }
 /**
  * //hoe//boe//indicators
  */
@@ -7,145 +8,82 @@ include_once( 'Hoeboe_OptionsManager.php' );
 
 class Hoeboe_InstallIndicator extends Hoeboe_OptionsManager {
 
-    const optionInstalled = '_installed';
-    const optionVersion = '_version';
-    const optionKey = '_key';
+  const optionInstalled = '_installed';
+  const optionVersion = '_version';
+  const optionKey = '_key';
 
-    /**
-     * @return bool indicating if the plugin is installed already
-     */
-    public function isInstalled() {
-        return $this->getOption(self::optionInstalled) == true;
-    }
+  public function isInstalled() {
+  return $this->getOption(self::optionInstalled) == true;
+  }
 
-    /**
-     * Note in DB that the plugin is installed
-     * @return null
-     */
-    protected function markAsInstalled() {
-        return $this->updateOption(self::optionInstalled, true);
-    }
+  protected function markAsInstalled() {
+    return $this->updateOption(self::optionInstalled, true);
+  }
 
-    /**
-     * Note in DB that the plugin is uninstalled
-     * @return bool
-     */
-    protected function markAsUnInstalled() {
-        return $this->deleteOption(self::optionInstalled);
-    }
+  protected function markAsUnInstalled() {
+    return $this->deleteOption(self::optionInstalled);
+  }
 
-    /**
-     * Check if an older version was installed
-     * @return null
-     */
-    protected function getVersionSaved() {
-        return $this->getOption(self::optionVersion);
-    }
+  protected function getVersionSaved() {
+    return $this->getOption(self::optionVersion);
+  }
 
-    /**
-     * Set a key on install
-     * @return null
-     */
-    protected function generateRandomString($length=18) {
-      return substr(str_shuffle(str_repeat($x='0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ', ceil($length/strlen($x)) )),1,$length);
-    }
-    protected function setRandomKey() {
-        return $this->updateOption(self::optionKey, $this->generateRandomString());
-    }
+  protected function generateRandomString($length=18) {
+    return substr(str_shuffle(str_repeat($x='0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ', ceil($length/strlen($x)) )),1,$length);
+  }
 
-    /**
-     * Set a version string in the options
-     */
-    protected function setVersionSaved($version) {
-        return $this->updateOption(self::optionVersion, $version);
-    }
+  protected function setRandomKey() {
+    return $this->updateOption(self::optionKey, $this->generateRandomString());
+  }
 
-    /**
-     * @return string
-     */
-    protected function getMainPluginFileName() {
-        return basename(dirname(__FILE__)) . 'php';
-    }
+  protected function setVersionSaved($version) {
+    return $this->updateOption(self::optionVersion, $version);
+  }
 
-    /**
-     * @return string
-     */
-    protected function getPluginDir() {
-        return dirname(__FILE__);
-    }
-    
-    /**
-     * @return string if found, otherwise null
-     */
-    public function getPluginHeaderValue($key) {
-        // Read the string from the comment header of the main plugin file
-        $data = file_get_contents($this->getPluginDir() . DIRECTORY_SEPARATOR . $this->getMainPluginFileName());
-        $match = array();
-        preg_match('/' . $key . ':\s*(\S+)/', $data, $match);
-        if (count($match) >= 1) {
-            return $match[1];
-        }
-        return null;
-    }
+  protected function getMainPluginFileName() {
+    return basename(dirname(__FILE__)) . 'php';
+  }
 
-    /**
-     * current version of this plugin
-     * @return string
-     */
-    public function getVersion() {
-        return $this->getPluginHeaderValue('Version');
-    }
+  protected function getPluginDir() {
+    return dirname(__FILE__);
+  }
 
-
-    /**
-     * Useful when checking for upgrades, can tell if the currently installed version is earlier than the
-     * newly installed code. This case indicates that an upgrade has been installed and this is the first time it
-     * has been activated, so any upgrade actions should be taken.
-     * @return bool true if the version saved in the options is earlier than the version declared in getVersion().
-     */
-    public function isInstalledCodeAnUpgrade() {
-        return $this->isSavedVersionLessThan($this->getVersion());
+  public function getPluginHeaderValue($key) {
+    $data = file_get_contents($this->getPluginDir() . DIRECTORY_SEPARATOR . $this->getMainPluginFileName());
+    $match = array();
+    preg_match('/' . $key . ':\s*(\S+)/', $data, $match);
+    if (count($match) >= 1) {
+      return $match[1];
     }
+    return null;
+  }
 
-    /**
-     * Is the installed code an earlier version than the input version
-     * @param  $aVersion string
-     * @return bool true if the saved version is earlier (by natural order) than the input version
-     */
-    public function isSavedVersionLessThan($aVersion) {
-        return $this->isVersionLessThan($this->getVersionSaved(), $aVersion);
-    }
+  public function getVersion() {
+    return $this->getPluginHeaderValue('Version');
+  }
 
-    /**
-     * Is the installed code the same or earlier than the input version
-     * Useful when checking for an upgrade
-     * @param  $aVersion string
-     * @return bool true if the saved version is earlier (by natural order) than the input version
-     */
-    public function isSavedVersionLessThanEqual($aVersion) {
-        return $this->isVersionLessThanEqual($this->getVersionSaved(), $aVersion);
-    }
+  public function isInstalledCodeAnUpgrade() {
+    return $this->isSavedVersionLessThan($this->getVersion());
+  }
 
-    /**
-     * @return bool true if version_compare of $versions1 and $version2 shows $version1 as the same or earlier
-     */
-    public function isVersionLessThanEqual($version1, $version2) {
-        return (version_compare($version1, $version2) <= 0);
-    }
+  public function isSavedVersionLessThan($aVersion) {
+    return $this->isVersionLessThan($this->getVersionSaved(), $aVersion);
+  }
 
-    /**
-     * @return bool true if version_compare of $versions1 and $version2 shows $version1 as earlier
-     */
-    public function isVersionLessThan($version1, $version2) {
-        return (version_compare($version1, $version2) < 0);
-    }
+  public function isSavedVersionLessThanEqual($aVersion) {
+    return $this->isVersionLessThanEqual($this->getVersionSaved(), $aVersion);
+  }
 
-    /**
-     * Record the installed version to options.
-     */
-    protected function saveInstalledVersion() {
-        $this->setVersionSaved($this->getVersion());
-    }
+  public function isVersionLessThanEqual($version1, $version2) {
+    return (version_compare($version1, $version2) <= 0);
+  }
+
+  public function isVersionLessThan($version1, $version2) {
+    return (version_compare($version1, $version2) < 0);
+  }
+
+  protected function saveInstalledVersion() {
+    $this->setVersionSaved($this->getVersion());
+  }
 
 }
-
